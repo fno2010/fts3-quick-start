@@ -43,15 +43,15 @@ RUN yum install -y epel-release \
 RUN echo "priority=2" >> /etc/yum.repos.d/dmc.repo \
     && echo "priority=10" >> /etc/yum.repos.d/fts3-prod-el7.repo \
     && echo "priority=20" >> /etc/yum.repos.d/fts3-depend-el7.repo
-COPY .devcontainer/fts3-local.repo.template /fts3-local.repo.template
+COPY native/fts3-local.repo.template /fts3-local.repo.template
 
 # Database configuration
-COPY .devcontainer/fts3config /etc/fts3/fts3config
+COPY native/fts3config /etc/fts3/fts3config
 RUN chmod +x /usr/share/fts/fts-database-upgrade.py
 
 # Configuration for FTSREST and FTSMON
-COPY .devcontainer/fts3rest.conf /etc/httpd/conf.d/fts3rest.conf
-COPY .devcontainer/fts3restconfig /etc/fts3/fts3restconfig
+COPY native/fts3rest.conf /etc/httpd/conf.d/fts3rest.conf
+COPY native/fts3restconfig /etc/fts3/fts3restconfig
 RUN echo "" > /etc/httpd/conf.d/ssl.conf &&\
     echo "" > /etc/httpd/conf.d/autoindex.conf &&\
     echo "" > /etc/httpd/conf.d/userdir.conf &&\
@@ -59,14 +59,14 @@ RUN echo "" > /etc/httpd/conf.d/ssl.conf &&\
     echo "" > /etc/httpd/conf.d/zgridsite.conf
 
 # FTS monitoring ActiveMQ configuration
-COPY .devcontainer/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
+COPY native/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
 
 # Entrypoint waiting script for MySQL
-COPY .devcontainer/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+COPY native/wait-for-it.sh /usr/local/bin/wait-for-it.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Shortcut for logfiles
-COPY .devcontainer/logshow /usr/local/bin/logshow
+COPY native/logshow /usr/local/bin/logshow
 RUN chmod +x /usr/local/bin/logshow \
     && touch /var/log/fts3/fts3server.log \
     && chown -R fts3:fts3 /var/log/fts3/fts3server.log \
@@ -74,4 +74,4 @@ RUN chmod +x /usr/local/bin/logshow \
     && chown -R fts3:fts3 /var/log/fts3rest
 
 EXPOSE 8446 8449
-ADD .devcontainer/docker-entrypoint.sh /
+ADD native/docker-entrypoint.sh /
