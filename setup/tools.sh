@@ -57,6 +57,21 @@ prepare_docker_compose () {
 }
 
 
+start_docker_compose () {
+    echo "Starting FTS/Rucio containers..."
+    docker-compose -f docker-compose.yml up
+
+    echo "Starting container on xrd1..."
+    ssh -l $SSH_USER $XRD1_HOST docker-compose -f ~/native/docker-compose-xrd1.yml up
+
+    echo "Starting container on xrd2..."
+    ssh -l $SSH_USER $XRD2_HOST docker-compose -f ~/native/docker-compose-xrd2.yml up
+
+    echo "Starting container on xrd3..."
+    ssh -l $SSH_USER $XRD3_HOST docker-compose -f ~/native/docker-compose-xrd3.yml up
+}
+
+
 init_fts () {
     echo $FTS_NODE
     # docker-compose -p $COMPOSE_PROJECT exec $RUCIO_NODE xrdgsiproxy init -bits 2048 -valid 9999:00 -cert /opt/rucio/etc/usercert.pem  -key /opt/rucio/etc/userkey.pem
