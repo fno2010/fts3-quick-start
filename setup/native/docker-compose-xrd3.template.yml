@@ -23,4 +23,5 @@ services:
       nofile:
         soft: 10240
         hard: 10240
+    network_mode: host
 

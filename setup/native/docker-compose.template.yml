@@ -62,6 +62,7 @@ services:
       - ./certs/ruciouser.certkey.pem:/opt/rucio/etc/usercertkey.pem:z
       - ./certs/ssh/ruciouser_sshkey.pub:/root/.ssh/ruciouser_sshkey.pub:z
       - ./certs/ssh/ruciouser_sshkey:/root/.ssh/ruciouser_sshkey:z
+    network_mode: host
   activemq:
     image: docker.io/webcenter/activemq:latest
     environment:

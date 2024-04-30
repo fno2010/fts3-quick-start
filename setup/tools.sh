@@ -45,6 +45,21 @@ start_docker_compose () {
 }
 
 
+stop_docker_compose () {
+    echo "Stopping FTS/Rucio containers..."
+    docker-compose -f $BASEDIR/native/docker-compose.yml stop
+
+    echo "Stopping container on xrd1..."
+    ssh -l $SSH_USER $XRD1_HOST docker-compose -f ~/native/docker-compose-xrd1.yml stop
+
+    echo "Stopping container on xrd2..."
+    ssh -l $SSH_USER $XRD2_HOST docker-compose -f ~/native/docker-compose-xrd2.yml stop
+
+    echo "Stopping container on xrd3..."
+    ssh -l $SSH_USER $XRD3_HOST docker-compose -f ~/native/docker-compose-xrd3.yml stop
+}
+
+
 init_fts () {
     echo $FTS_NODE
     # docker-compose -p $COMPOSE_PROJECT exec $RUCIO_NODE xrdgsiproxy init -bits 2048 -valid 9999:00 -cert /opt/rucio/etc/usercert.pem  -key /opt/rucio/etc/userkey.pem
