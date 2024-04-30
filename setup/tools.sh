@@ -59,7 +59,7 @@ prepare_docker_compose () {
 
 start_docker_compose () {
     echo "Starting FTS/Rucio containers..."
-    docker-compose -f docker-compose.yml up
+    docker-compose -f $BASEDIR/native/docker-compose.yml up
 
     echo "Starting container on xrd1..."
     ssh -l $SSH_USER $XRD1_HOST docker-compose -f ~/native/docker-compose-xrd1.yml up
