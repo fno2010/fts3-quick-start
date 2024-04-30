@@ -19,11 +19,14 @@ XRD3_HOST=${XRD3_HOST:-xrd3}
 SSH_USER=${SSH_USER:-centos} # assume all the xrootd machines use the same ssh user name
 
 
-# Environment Variables for IPs
+# Environment Variables for IPs and Ports
 export RUCIO_IP=${RUCIO_IP:-10.0.0.250}
 export XRD1_IP=${XRD1_IP:-10.0.0.251}
 export XRD2_IP=${XRD2_IP:-10.0.0.252}
 export XRD3_IP=${XRD3_IP:-10.0.0.253}
+export XRD1_PORT=${XRD1_PORT:-1094}
+export XRD2_PORT=${XRD2_PORT:-1094}
+export XRD3_PORT=${XRD3_PORT:-1094}
 
 
 BASEDIR=$(dirname $0)

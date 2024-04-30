@@ -6,7 +6,7 @@ services:
       - NET_ADMIN
     container_name: xrd2
     environment:
-      - XRDPORT=1094
+      - XRDPORT=${XRD2_PORT}
     extra_hosts:
       - activemq:${RUCIO_IP}
       - fts:${RUCIO_IP}
