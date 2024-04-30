@@ -1,11 +1,15 @@
 #!/bin/bash
 
+
+# TODO: Modify the following environment variables as you need
+
 # Environment Variables for the FTS/Rucio machine
-COMPOSE_PROJECT=${COMPOSE_PROJECT:-fts3_devcontainer} # project to start docker-compose.yml file for fts
+COMPOSE_PROJECT=${COMPOSE_PROJECT:-native} # project to start docker-compose.yml file for fts
 RUCIO_NODE=${RUCIO_NODE:-rucio} # container name of the 'rucio' container
 FTS_NODE=${FTS_NODE:-fts-dev} # container name of the 'fts' container
 FTSDB_NODE=${FTSDB_NODE:-ftsdb} # container name of the 'ftsdb' container
 FTS_HOST=${FTS_HOST:-fts} # host/domain name of the 'fts' container
+RUCIO_HOST=${RUCIO_HOST:-rucio} # host/domain name of the 'rucio container
 
 
 # Environment Variables for the Xrootd
@@ -14,6 +18,40 @@ XRD2_HOST=${XRD2_HOST:-xrd2}
 XRD3_HOST=${XRD3_HOST:-xrd3}
 SSH_USER=${SSH_USER:-centos} # assume all the xrootd machines use the same ssh user name
 
+
+# Environment Variables for IPs
+export RUCIO_IP=${RUCIO_IP:-10.0.0.250}
+export XRD1_IP=${RUCIO_IP:-10.0.0.251}
+export XRD2_IP=${RUCIO_IP:-10.0.0.252}
+export XRD3_IP=${RUCIO_IP:-10.0.0.253}
+
+
+BASEDIR=$(dirname $0)
+
+
+prepare_docker_compose () {
+    echo "Creating FTS/Rucio docker compose file from the template..."
+    envsubst < $BASEDIR/native/docker-compose.template.yml > $BASEDIR/native/docker-compose.yml
+    echo "Done"
+
+    echo "Creating XRootD docker compose file from the template for xrd1..."
+    envsubst < $BASEDIR/native/docker-compose-xrd1.template.yml > $BASEDIR/native/docker-compose-xrd1.yml
+    echo "Copying necessary files to the xrd1 host..."
+    scp -r $BASEDIR/native/ $SSH_USER@$XRD1_HOST:~/native/
+    echo "Done"
+
+    echo "Creating XRootD docker compose file from the template for xrd2..."
+    envsubst < $BASEDIR/native/docker-compose-xrd2.template.yml > $BASEDIR/native/docker-compose-xrd2.yml
+    echo "Copying necessary files to the xrd2 host..."
+    scp -r $BASEDIR/native/ $SSH_USER@$XRD2_HOST:~/native/
+    echo "Done"
+
+    echo "Creating XRootD docker compose file from the template for xrd3..."
+    envsubst < $BASEDIR/native/docker-compose-xrd3.template.yml > $BASEDIR/native/docker-compose-xrd3.yml
+    echo "Copying necessary files to the xrd3 host..."
+    scp -r $BASEDIR/native/ $SSH_USER@$XRD3_HOST:~/native/
+    echo "Done"
+}
 
 
 init_fts () {

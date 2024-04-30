@@ -1,0 +1,77 @@
+version: '3'
+services:
+  fts-dev:
+    build:
+      context: ..
+      dockerfile: native/Dockerfile
+    volumes:
+      - ./certs/rucio_ca.pem:/etc/grid-security/certificates/5fca1cb1.0:z
+      - ./certs/hostcert_fts.pem:/etc/grid-security/hostcert.pem:Z
+      - ./certs/hostcert_fts.key.pem:/etc/grid-security/hostkey.pem:Z
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    ulimits:
+      nofile:
+        soft: 10240
+        hard: 10240
+    network_mode: service:rucio
+  ftsdb:
+    image: docker.io/mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_USER=fts
+      - MYSQL_PASSWORD=fts
+      - MYSQL_ROOT_PASSWORD=fts
+      - MYSQL_DATABASE=fts
+    network_mode: service:rucio
+  rucio:
+    image: docker.io/fno2010/rucio-dev:latest-alma9
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    cap_add:
+      - NET_ADMIN
+    container_name: rucio
+    environment:
+      - RUCIO_SOURCE_DIR=/rucio_source
+      - X509_USER_CERT=/opt/rucio/etc/usercert.pem
+      - X509_USER_KEY=/opt/rucio/etc/userkey.pem
+      - RDBMS
+    extra_hosts:
+      - activemq:127.0.0.1
+      - fts:127.0.0.1
+      - ftsdb:127.0.0.1
+      - rucio:${RUCIO_IP}
+      - xrd1:${XRD1_IP}
+      - xrd2:${XRD2_IP}
+      - xrd3:${XRD3_IP}
+    ports:
+      - 127.0.0.1:8443:443
+      - 127.0.0.1:5432:5432
+      - 127.0.0.1:8080:80
+      - 127.0.0.1:8446:8446
+      - 127.0.0.1:8449:8449
+      - 127.0.0.1:3306:3306
+      - 127.0.0.1:9000:9000
+      - 127.0.0.1:61613:61613
+      - 127.0.0.1:2222:22
+    volumes:
+      - ./certs/rucio_ca.pem:/etc/grid-security/certificates/5fca1cb1.0:z
+      - ./certs/hostcert_rucio.pem:/etc/grid-security/hostcert.pem:z
+      - ./certs/hostcert_rucio.key.pem:/etc/grid-security/hostkey.pem:z
+      - ./certs/rucio_ca.pem:/opt/rucio/etc/rucio_ca.pem:z
+      - ./certs/ruciouser.pem:/opt/rucio/etc/usercert.pem:z
+      - ./certs/ruciouser.key.pem:/opt/rucio/etc/userkey.pem:z
+      - ./certs/ruciouser.certkey.pem:/opt/rucio/etc/usercertkey.pem:z
+      - ./certs/ssh/ruciouser_sshkey.pub:/root/.ssh/ruciouser_sshkey.pub:z
+      - ./certs/ssh/ruciouser_sshkey:/root/.ssh/ruciouser_sshkey:z
+  activemq:
+    image: docker.io/webcenter/activemq:latest
+    environment:
+      - ACTIVEMQ_CONFIG_NAME=activemq
+      - ACTIVEMQ_CONFIG_DEFAULTACCOUNT=false
+      - ACTIVEMQ_USERS_fts=supersecret
+      - ACTIVEMQ_GROUPS_writes=fts
+      - ACTIVEMQ_USERS_receiver=supersecret
+      - ACTIVEMQ_GROUPS_reads=receiver
+      - ACTIVEMQ_CONFIG_SCHEDULERENABLED=true
+      - ACTIVEMQ_USERS_hermes=supersecret
+      - ACTIVEMQ_CONFIG_QUEUES_events=/queue/events'
+    network_mode: service:rucio

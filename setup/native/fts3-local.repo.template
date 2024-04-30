@@ -1,0 +1,6 @@
+[fts-local]
+name=FTS Local
+baseurl=file://${WORKSPACE}/packaging/out
+gpgcheck=0
+enabled=1
+priority=1

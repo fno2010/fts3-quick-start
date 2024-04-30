@@ -1,0 +1,26 @@
+version: '3'
+services:
+  xrd3:
+    image: docker.io/fno2010/xrootd:32.5.0
+    cap_add:
+      - NET_ADMIN
+    container_name: xrd3
+    environment:
+      - XRDPORT=1094
+    extra_hosts:
+      - activemq:${RUCIO_IP}
+      - fts:${RUCIO_IP}
+      - ftsdb:${RUCIO_IP}
+      - rucio:${RUCIO_IP}
+      - xrd1:${XRD1_IP}
+      - xrd2:${XRD2_IP}
+      - xrd3:127.0.0.1
+    volumes:
+      - ./certs/rucio_ca.pem:/etc/grid-security/certificates/5fca1cb1.0:z
+      - ./certs/hostcert_xrd3.pem:/tmp/xrdcert.pem:Z
+      - ./certs/hostcert_xrd3.key.pem:/tmp/xrdkey.pem:Z
+    ulimits:
+      nofile:
+        soft: 10240
+        hard: 10240
+
