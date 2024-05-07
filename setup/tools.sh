@@ -2,7 +2,7 @@
 
 source env.sh
 
-BASEDIR=$(dirname $0)
+BASEDIR=$(dirname "$(readlink -f "$0")")
 
 
 prepare_docker_compose () {
