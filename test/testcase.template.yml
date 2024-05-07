@@ -1,0 +1,44 @@
+description: An example of a test case definition
+network_emulator: mininet # mininet | core | ns3
+topo:
+  nodes:
+    - name: sw1
+      attr:
+        cls: OVSSwitch
+    - name: sw2
+  external_hosts:
+    - host: fts
+      ip: 10.0.0.250
+    - host: xrd1
+      ip: 10.0.0.251
+    - host: xrd2
+      ip: 10.0.0.252
+    - host: xrd3
+      ip: 10.0.0.253
+  links:
+    - endpoints: ["fts", "sw1"]
+    - endpoints: ["sw2", "xrd1"]
+    - endpoints: ["sw2", "xrd2"]
+    - endpoints: ["sw2", "xrd3"]
+    - endpoints: ["sw1", "sw2"]
+      bandwidth: 100 # Mbps
+      delay: 10 # ms
+workload:
+  - src: xrd1
+    dst: xrd2
+    filesize: 100 # MB
+    number: 10
+    start_time: 0 # time offset since test started (unit: second)
+  - src: xrd1
+    dst: xrd3
+    filesize: 100 # MB
+    number: 10
+    start_time: 10 # time offset since test started (unit: second)
+  - src: xrd1
+    dst: xrd2
+    filesize: 10 # MB
+    number: 100
+    start_time: 20 # time offset since test started (unit: second)
+result:
+  save_path: '${HOME}/test/results'
+
