@@ -1,0 +1,6 @@
+[fts-local]
+name=FTS Local
+baseurl=file:///fts3/packaging/out
+gpgcheck=0
+enabled=1
+priority=1
