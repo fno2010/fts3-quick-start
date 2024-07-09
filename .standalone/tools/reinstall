@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Stop the running FTS server
+echo "Stopping the running FTS server..."
+apachectl -k stop                  # FTS REST frontend & FTSMON
+ps ax awk '/fts3_/{ print $1 }' | xargs kill -9
+
+# Prepare local FTS3 repo
+echo "Rebuilding FTS3..."
+yum-builddep -y rpm/fts.spec
+make rpm
+createrepo out
+
+# Remove the old fts server and install the local one
+echo "Installing FTS3 from the local repo..."
+yum erase -y fts-libs fts-server
+yum install -y fts-server fts-mysql fts-msg
+
+echo "Following files are [re]installed:"
+
+rpm -ql fts-libs fts-server fts-mysql fts-msg

@@ -1,5 +1,7 @@
 # Standalone FTS3 Container Image
 
+This is a standalone fts3 docker environment setup which is compatible with the latest [rucio container environment](https://github.com/rucio/containers).
+
 ## Build Image
 
 ~~~ sh
@@ -19,8 +21,11 @@ $ cd fts3/.standalone
 ## Fetch dependent files from the rucio containers repo
 $ git clone https://github.com/rucio/containers
 
+## Switch to the parent directory
+$ cd ..
+
 ## Build the docker image
-$ docker build -t myrepo/fts .
+$ docker build -t myrepo/fts -f .standalone/Dockerfile .
 ~~~
 
 ## Use Image in Rucio Container Setup
@@ -34,6 +39,22 @@ Modify `fts` service of `/etc/docker/dev/docker-compose.yml`:
     # ...
     volumes:
       # ...
-      - path_to_my_fts_dir:/fts3
+      - <PATH_TO_MY_FTS_DIR>:/fts3
     # ...
+~~~
+
+## Build and Reinstall FTS3 from the Source Code
+
+~~~ sh
+## Enter the fts3 container
+$ docker-compose -p dev exec fts bash
+
+## Rebuild and Reinstall fts3
+$ /fts3/.standalone/tools/reinstall
+~~~
+
+## Restart FTS3 Server
+
+~~~ sh
+$ /fts3/.standalone/tools/restart
 ~~~

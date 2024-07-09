@@ -15,7 +15,7 @@ ARG dmcrepo=https://dmc-repo.web.cern.ch/dmc-repo/dmc-devel-el7.repo
 ADD $ftsrepo /etc/yum.repos.d/fts3-el7.repo
 ADD $ftsdeprepo /etc/yum.repos.d/fts3-depend-el7.repo
 ADD $dmcrepo /etc/yum.repos.d/dmc.repo
-ADD ../packaging/rpm/fts.spec /
+ADD packaging/rpm/fts.spec /
 
 # Set Up Visual Studio Code User
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -47,12 +47,12 @@ RUN echo "priority=2" >> /etc/yum.repos.d/dmc.repo \
 COPY fts3-local.repo /etc/yum.repos.d/fts3-local.repo
 
 # Database configuration
-COPY containers/fts/fts3config /etc/fts3/fts3config
+COPY .standalone/containers/fts/fts3config /etc/fts3/fts3config
 RUN chmod +x /usr/share/fts/fts-database-upgrade.py
 
 # Configuration for FTSREST and FTSMON
-COPY containers/fts/fts3rest.conf /etc/httpd/conf.d/fts3rest.conf
-COPY containers/fts/fts3restconfig /etc/fts3/fts3restconfig
+COPY .standalone/containers/fts/fts3rest.conf /etc/httpd/conf.d/fts3rest.conf
+COPY .standalone/containers/fts/fts3restconfig /etc/fts3/fts3restconfig
 RUN echo "" > /etc/httpd/conf.d/ssl.conf &&\
     echo "" > /etc/httpd/conf.d/autoindex.conf &&\
     echo "" > /etc/httpd/conf.d/userdir.conf &&\
@@ -60,14 +60,14 @@ RUN echo "" > /etc/httpd/conf.d/ssl.conf &&\
     echo "" > /etc/httpd/conf.d/zgridsite.conf
 
 # FTS monitoring ActiveMQ configuration
-COPY containers/fts/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
+COPY .standalone/containers/fts/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
 
 # Entrypoint waiting script for MySQL
-COPY containers/fts/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+COPY .standalone/containers/fts/wait-for-it.sh /usr/local/bin/wait-for-it.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Shortcut for logfiles
-COPY containers/fts/logshow /usr/local/bin/logshow
+COPY .standalone/containers/fts/logshow /usr/local/bin/logshow
 RUN chmod +x /usr/local/bin/logshow \
     && touch /var/log/fts3/fts3server.log \
     && chown -R fts3:fts3 /var/log/fts3/fts3server.log \
@@ -75,4 +75,5 @@ RUN chmod +x /usr/local/bin/logshow \
     && chown -R fts3:fts3 /var/log/fts3rest
 
 EXPOSE 8446 8449
-ADD containers/fts/docker-entrypoint.sh /
+ADD .standalone/containers/fts/docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
