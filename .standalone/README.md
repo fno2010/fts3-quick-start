@@ -25,7 +25,7 @@ $ git clone https://github.com/rucio/containers
 $ cd ..
 
 ## Build the docker image
-$ docker build -t myrepo/fts -f .standalone/Dockerfile .
+$ docker build -t myrepo/fts -f .standalone/Dockerfile.alma9 .
 ~~~
 
 ## Use Image in Rucio Container Setup

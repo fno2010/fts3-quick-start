@@ -7,15 +7,17 @@ ps ax awk '/fts3_/{ print $1 }' | xargs kill -9
 
 # Prepare local FTS3 repo
 echo "Rebuilding FTS3..."
+cd /fts3/packaging
 yum-builddep -y rpm/fts.spec
 make rpm
 createrepo out
+createrepo out/x86_64
 
 # Remove the old fts server and install the local one
 echo "Installing FTS3 from the local repo..."
-yum erase -y fts-libs fts-server
-yum install -y fts-server fts-mysql fts-msg
+dnf remove -y fts-libs fts-server
+dnf install -y fts-server fts-mysql fts-msg
 
 echo "Following files are [re]installed:"
+dnf repoquery -y fts-server fts-mysql fts-msg
 
-rpm -ql fts-libs fts-server fts-mysql fts-msg

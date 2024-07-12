@@ -1,0 +1,76 @@
+FROM almalinux:9
+
+# Visual Studio Code Dev Container Environment
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+# FTS Related Repos
+# ARG ftsrepo=https://fts-repo.web.cern.ch/fts-repo/fts3-el7.repo
+# ARG ftsrepo=https://fts-repo.web.cern.ch/fts-repo/fts3-devel-el7.repo
+ARG ftsrepo=https://fts-repo.web.cern.ch/fts-repo/fts3-el9.repo
+ARG ftsdeprepo=https://fts-repo.web.cern.ch/fts-repo/fts3-depend.repo
+ARG dmcrepo=https://dmc-repo.web.cern.ch/dmc-repo/dmc-devel-el9.repo
+
+# Add Repos
+ADD $ftsrepo /etc/yum.repos.d/fts3.repo
+ADD $ftsdeprepo /etc/yum.repos.d/fts3-depend.repo
+ADD $dmcrepo /etc/yum.repos.d/dmc.repo
+ADD packaging/rpm/fts.spec /
+
+# Set Up Visual Studio Code User
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && ulimit -n 102400
+
+# Install Development Dependencies
+RUN dnf install -y yum-utils dnf-plugins-core createrepo rpm-build \
+    && dnf config-manager --set-enabled crb \
+    && dnf install -y epel-release \
+    && dnf builddep -y "/fts.spec" \
+
+# Install FTS and Runtime Dependencies
+    && dnf install -y \
+        fts-server fts-rest-client fts-rest-server fts-monitoring fts-mysql fts-msg \
+        fts-server-selinux fts-rest-server-selinux fts-monitoring-selinux \
+        mysql multitial gfal2-plugin* \
+    && dnf clean all
+
+# Override repo priorities
+COPY fts3-local.repo /etc/yum.repos.d/fts3-local.repo
+RUN dnf config-manager --setopt=dmc-devel-el9.priority=2 --save \
+    && dnf config-manager --setopt=fts3-el9.priority=10 --save \
+    && dnf config-manager --setopt=fts3-depend.priority=20 --save
+
+# Database configuration
+COPY .standalone/containers/fts/fts3config /etc/fts3/fts3config
+RUN chmod +x /usr/share/fts/fts-database-upgrade.py
+
+# Configuration for FTSREST and FTSMON
+COPY .standalone/containers/fts/fts3rest.conf /etc/httpd/conf.d/fts3rest.conf
+COPY .standalone/containers/fts/fts3restconfig /etc/fts3/fts3restconfig
+RUN echo "" > /etc/httpd/conf.d/ssl.conf &&\
+    echo "" > /etc/httpd/conf.d/autoindex.conf &&\
+    echo "" > /etc/httpd/conf.d/userdir.conf &&\
+    echo "" > /etc/httpd/conf.d/welcome.conf &&\
+    echo "" > /etc/httpd/conf.d/zgridsite.conf &&\
+    mkdir -p /etc/grid-security/certificates
+
+# FTS monitoring ActiveMQ configuration
+COPY .standalone/containers/fts/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
+
+# Entrypoint waiting script for MySQL
+COPY .standalone/containers/fts/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
+
+# Shortcut for logfiles
+COPY .standalone/containers/fts/logshow /usr/local/bin/logshow
+RUN chmod +x /usr/local/bin/logshow \
+    && touch /var/log/fts3/fts3server.log \
+    && chown -R fts3:fts3 /var/log/fts3/fts3server.log \
+    && touch /var/log/fts3rest/fts3rest.log \
+    && chown -R fts3:fts3 /var/log/fts3rest
+
+EXPOSE 8446 8449
+ADD .standalone/containers/fts/docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
