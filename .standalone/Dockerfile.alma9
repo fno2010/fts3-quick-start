@@ -33,11 +33,11 @@ RUN dnf install -y yum-utils dnf-plugins-core createrepo rpm-build \
     && dnf install -y \
         fts-server fts-rest-client fts-rest-server fts-monitoring fts-mysql fts-msg \
         fts-server-selinux fts-rest-server-selinux fts-monitoring-selinux \
-        mysql multitial gfal2-plugin* \
+        mysql multitail gfal2-plugin* \
     && dnf clean all
 
 # Override repo priorities
-COPY fts3-local.repo /etc/yum.repos.d/fts3-local.repo
+COPY .standalone/fts3-local.repo /etc/yum.repos.d/fts3-local.repo
 RUN dnf config-manager --setopt=dmc-devel-el9.priority=2 --save \
     && dnf config-manager --setopt=fts3-el9.priority=10 --save \
     && dnf config-manager --setopt=fts3-depend.priority=20 --save

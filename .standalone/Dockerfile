@@ -29,7 +29,7 @@ RUN yum install -y epel-release \
     && yum groupinstall -y 'Development Tools' \
     && yum install -y centos-release-scl \
                       yum-plugin-priorities yum-utils createrepo git \
-                      mysql multitial gfal2-all gfal2-plugin* \
+                      mysql multitail gfal2-all gfal2-plugin* \
                       jsoncpp-devel zeromq \
     && yum install -y devtoolset-8 \
     && scl enable devtoolset-8 -- bash \
@@ -44,7 +44,7 @@ RUN yum install -y epel-release \
 RUN echo "priority=2" >> /etc/yum.repos.d/dmc.repo \
     && echo "priority=10" >> /etc/yum.repos.d/fts3-el7.repo \
     && echo "priority=20" >> /etc/yum.repos.d/fts3-depend-el7.repo
-COPY fts3-local.repo /etc/yum.repos.d/fts3-local.repo
+COPY .standalone/fts3-local.repo /etc/yum.repos.d/fts3-local.repo
 
 # Database configuration
 COPY .standalone/containers/fts/fts3config /etc/fts3/fts3config
